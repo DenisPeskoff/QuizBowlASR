@@ -144,16 +144,17 @@ class QuizBowl(Dataset):
 
     @staticmethod
     def sort_key(example):
-        if hasattr(example, 'text'):
-            return len(example.text)
-        elif hasattr(example, 'unigram'):
-            return len(example.unigram)
-        elif hasattr(example, 'bigram'):
-            return len(example.bigram)
-        elif hasattr(example, 'trigram'):
-            return len(example.trigram)
-        else:
-            raise ValueError('Not valid length fields')
+        return (len(example.confidence))
+#         if hasattr(example, 'text'):
+#             return len(example.text)
+#         elif hasattr(example, 'unigram'):
+#             return len(example.unigram)
+#         elif hasattr(example, 'bigram'):
+#             return len(example.bigram)
+#         elif hasattr(example, 'trigram'):
+#             return len(example.trigram)
+#         else:
+#             raise ValueError('Not valid length fields')
 
     def __init__(self, path, qnum_field, sent_field, page_field, confidence_field,
                  text_field, unigram_field, bigram_field, trigram_field,
@@ -284,7 +285,7 @@ class QuizBowl(Dataset):
     @classmethod
     def iters(cls, lower=True, example_mode='sentence',
               use_wiki=False, n_wiki_sentences=5, replace_title_mentions='',
-              batch_size=128, device=-1, root='.data', vectors='glove.6B.300d',
+              batch_size=128, device=0, root='.data', vectors='glove.6B.300d',
               unigrams=True, bigrams=False, trigrams=False, combined_ngrams=True,
               combined_max_vocab_size=None,
               unigram_max_vocab_size=None, bigram_max_vocab_size=None, trigram_max_vocab_size=None,
@@ -313,6 +314,8 @@ class QuizBowl(Dataset):
         return BucketIterator.splits(
             (train, val, dev),
             batch_size=batch_size,
-            device=-1,
+            device=device,
+            shuffle=False, 
+            #sort_key=lambda x: (len(x.text), len(x.confidence)),
             repeat=False
         )
